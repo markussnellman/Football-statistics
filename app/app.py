@@ -9,6 +9,7 @@ import pandas as pd
 
 # App
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
+server = app.server
 
 # Components
 league_dropdown = dcc.Dropdown(options=list(leagues.keys()), value='', id='league-dropdown')
