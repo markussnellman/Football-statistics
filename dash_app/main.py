@@ -164,15 +164,15 @@ def on_team_change(home_team, away_team, league, team_data, scoreboard):
     # Check that teams are properly selected
     if home_team != '' and away_team != '':
 
-        # if home_team not in team_data['coach'].keys():
-        #     # Get home team coach for home team
-        #     home_team_html = fetch_team_html(home_team)
-        #     team_data['coach'][home_team] = scrape_coach(home_team_html)
+        if home_team not in team_data['coach'].keys():
+            # Get home team coach for home team
+            home_team_html = fetch_team_html(home_team)
+            team_data['coach'][home_team] = scrape_coach(home_team_html)
 
-        # if away_team not in team_data['coach'].keys():
-        #     # Get away team coach for away team
-        #     away_team_html = fetch_team_html(away_team)
-        #     team_data['coach'][away_team] = scrape_coach(away_team_html)
+        if away_team not in team_data['coach'].keys():
+            # Get away team coach for away team
+            away_team_html = fetch_team_html(away_team)
+            team_data['coach'][away_team] = scrape_coach(away_team_html)
 
         # if home_team not in team_data['games last week'].keys():
         #     # Get last weeks games for home tea
