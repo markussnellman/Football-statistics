@@ -11,6 +11,13 @@ import pandas as pd
 # App
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 
+# Debug: test dataframe to debug table updating on Render
+data = {
+        'Team A': ['Col 1', 'Col 2', 'Col 3', 'Col 4', 'Col 5', 'Col 6', 'Col 7', 'Col 8', 'Col 9'], 
+        'Team B': ['Col 1', 'Col 2', 'Col 3', 'Col 4', 'Col 5', 'Col 6', 'Col 7', 'Col 8', 'Col 9'],
+        }
+test_df = pd.DataFrame.from_dict(data, orient='index', columns=table_cols)
+
 
 # Components
 league_dropdown = dcc.Dropdown(options=list(leagues.keys()), value='', id='league-dropdown')
@@ -190,8 +197,8 @@ def on_team_change(home_team, away_team, league, team_data, scoreboard):
         away_games_last_week = team_data['games last week'][away_team]
 
         df = format_data_to_table(home_team, away_team, total_score, home_score, away_score, last_five_games, coach_home, coach_away, home_games_last_week, away_games_last_week)
-
-        return df.to_dict('records'), team_data
+        # Debug returning test df
+        return test_df.to_dict('records'), team_data
 
     else:
         return no_update, no_update
