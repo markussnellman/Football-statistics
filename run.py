@@ -1,4 +1,4 @@
-from app import run_app
+from dash_app import create_app
 
-app = run_app()
-# app.run_server(debug=False)
+app = create_app()
+app.run_server(debug=False)
