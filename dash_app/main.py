@@ -182,23 +182,22 @@ def on_team_change(home_team, away_team, league, team_data, scoreboard):
             # Get last weeks games for away team
             team_data['games last week'][away_team] = scrape_games_last_week(away_team_html)  
 
-        # # Get scoreboard data and last five games
-        # # Note that dfs need to be read as JSON
-        # total_score = pd.read_json(scoreboard['total scoreboard'][league], orient='split')
-        # home_score = pd.read_json(scoreboard['home scoreboard'][league], orient='split')
-        # away_score = pd.read_json(scoreboard['away scoreboard'][league], orient='split')
-        # last_five_games = scoreboard['last five games'][league]
+        # Get scoreboard data and last five games
+        # Note that dfs need to be read as JSON
+        total_score = pd.read_json(scoreboard['total scoreboard'][league], orient='split')
+        home_score = pd.read_json(scoreboard['home scoreboard'][league], orient='split')
+        away_score = pd.read_json(scoreboard['away scoreboard'][league], orient='split')
+        last_five_games = scoreboard['last five games'][league]
 
-        # # Get team data
-        # coach_home = team_data['coach'][home_team]
-        # coach_away = team_data['coach'][away_team]
-        # home_games_last_week = team_data['games last week'][home_team]
-        # away_games_last_week = team_data['games last week'][away_team]
+        # Get team data
+        coach_home = team_data['coach'][home_team]
+        coach_away = team_data['coach'][away_team]
+        home_games_last_week = team_data['games last week'][home_team]
+        away_games_last_week = team_data['games last week'][away_team]
 
-        # df = format_data_to_table(home_team, away_team, total_score, home_score, away_score, last_five_games, coach_home, coach_away, home_games_last_week, away_games_last_week)
+        df = format_data_to_table(home_team, away_team, total_score, home_score, away_score, last_five_games, coach_home, coach_away, home_games_last_week, away_games_last_week)
         
-        # Debug returning test df
-        return test_df.to_dict('records'), team_data
+        return df.to_dict('records'), team_data
 
     else:
         return no_update, no_update

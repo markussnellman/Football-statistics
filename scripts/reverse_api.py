@@ -10,6 +10,12 @@ total_url = config.TOTAL_URL
 home_url = config.HOME_URL
 away_url = config.AWAY_URL
 
+"""
+Requests to these APIs return 403 status code when live on Render.
+
+Need another alternative.
+"""
+
 
 def get_score_board(url: str, headers: str, parse: Callable) -> pd.DataFrame:
     """Gets score board from url and parses JSON with parse function. 

@@ -9,49 +9,59 @@ def format_data_to_table(home_team: str, away_team: str, total_score: pd.DataFra
 
     # Format second column
     # Position
-    home_position = total_score.loc[total_score['name'] == home_team, 'position'].values[0]
-    away_position = total_score.loc[total_score['name'] == away_team, 'position'].values[0]
+    if not total_score.empty:
+        home_position = total_score.loc[total_score['name'] == home_team, 'position'].values[0]
+        away_position = total_score.loc[total_score['name'] == away_team, 'position'].values[0]
 
-    # Total points
-    home_total_points = total_score.loc[total_score['name'] == home_team, 'points'].values[0]
-    away_total_points = total_score.loc[total_score['name'] == away_team, 'points'].values[0]
+        # Total points
+        home_total_points = total_score.loc[total_score['name'] == home_team, 'points'].values[0]
+        away_total_points = total_score.loc[total_score['name'] == away_team, 'points'].values[0]
 
-    # Scores
-    home_total_scores_for = total_score.loc[total_score['name'] == home_team, 'scores for'].values[0]
-    home_total_scores_against = total_score.loc[total_score['name'] == home_team, 'scores against'].values[0]
-    away_total_scores_for = total_score.loc[total_score['name'] == away_team, 'scores for'].values[0]
-    away_total_scores_against = total_score.loc[total_score['name'] == away_team, 'scores against'].values[0]
+        # Scores
+        home_total_scores_for = total_score.loc[total_score['name'] == home_team, 'scores for'].values[0]
+        home_total_scores_against = total_score.loc[total_score['name'] == home_team, 'scores against'].values[0]
+        away_total_scores_for = total_score.loc[total_score['name'] == away_team, 'scores for'].values[0]
+        away_total_scores_against = total_score.loc[total_score['name'] == away_team, 'scores against'].values[0]
 
-    col_2_home = str(home_position) + ", " + str(home_total_points) + "p, " + str(home_total_scores_for) + ":" + str(home_total_scores_against)
-    col_2_away = str(away_position) + ", " + str(away_total_points) + "p, " + str(away_total_scores_for) + ":" + str(away_total_scores_against)
+        col_2_home = str(home_position) + ", " + str(home_total_points) + "p, " + str(home_total_scores_for) + ":" + str(home_total_scores_against)
+        col_2_away = str(away_position) + ", " + str(away_total_points) + "p, " + str(away_total_scores_for) + ":" + str(away_total_scores_against)
+
+    else:
+        col_2_home = "Could not retrieve data."
+        col_2_away = "Could not retrieve data."
 
     # Format third column
     # Home team result
-    home_wins = home_score.loc[home_score['name'] == home_team, 'wins'].values[0]
-    home_draws = home_score.loc[home_score['name'] == home_team, 'draws'].values[0]
-    home_losses = home_score.loc[home_score['name'] == home_team, 'losses'].values[0]
+    if not home_score.empty and not away_score.empty:
+        home_wins = home_score.loc[home_score['name'] == home_team, 'wins'].values[0]
+        home_draws = home_score.loc[home_score['name'] == home_team, 'draws'].values[0]
+        home_losses = home_score.loc[home_score['name'] == home_team, 'losses'].values[0]
 
-    # Away team result
-    away_wins = away_score.loc[away_score['name'] == away_team, 'wins'].values[0]
-    away_draws = away_score.loc[away_score['name'] == away_team, 'draws'].values[0]
-    away_losses = away_score.loc[away_score['name'] == away_team, 'losses'].values[0]
+        # Away team result
+        away_wins = away_score.loc[away_score['name'] == away_team, 'wins'].values[0]
+        away_draws = away_score.loc[away_score['name'] == away_team, 'draws'].values[0]
+        away_losses = away_score.loc[away_score['name'] == away_team, 'losses'].values[0]
 
-    # Home team points
-    home_points = home_score.loc[home_score['name'] == home_team, 'points'].values[0]
+        # Home team points
+        home_points = home_score.loc[home_score['name'] == home_team, 'points'].values[0]
 
-    # Away team points
-    away_points = away_score.loc[away_score['name'] == away_team, 'points'].values[0]
+        # Away team points
+        away_points = away_score.loc[away_score['name'] == away_team, 'points'].values[0]
 
-    # Home scores
-    home_scores_for = home_score.loc[home_score['name'] == home_team, 'scores for'].values[0]
-    home_scores_against = home_score.loc[home_score['name'] == home_team, 'scores against'].values[0] 
+        # Home scores
+        home_scores_for = home_score.loc[home_score['name'] == home_team, 'scores for'].values[0]
+        home_scores_against = home_score.loc[home_score['name'] == home_team, 'scores against'].values[0] 
 
-    # Away scores
-    away_scores_for = away_score.loc[away_score['name'] == away_team, 'scores for'].values[0]
-    away_scores_against = away_score.loc[away_score['name'] == away_team, 'scores against'].values[0] 
+        # Away scores
+        away_scores_for = away_score.loc[away_score['name'] == away_team, 'scores for'].values[0]
+        away_scores_against = away_score.loc[away_score['name'] == away_team, 'scores against'].values[0] 
 
-    col_3_home = str(home_wins) + "-" + str(home_draws) + "-" + str(home_losses) + ", " + str(home_points) + "p, " + str(home_scores_for) + ":" + str(home_scores_against)
-    col_3_away = str(away_wins) + "-" + str(away_draws) + "-" + str(away_losses) + ", " + str(away_points) + "p, " + str(away_scores_for) + ":" + str(away_scores_against)
+        col_3_home = str(home_wins) + "-" + str(home_draws) + "-" + str(home_losses) + ", " + str(home_points) + "p, " + str(home_scores_for) + ":" + str(home_scores_against)
+        col_3_away = str(away_wins) + "-" + str(away_draws) + "-" + str(away_losses) + ", " + str(away_points) + "p, " + str(away_scores_for) + ":" + str(away_scores_against)
+    
+    else:
+        col_3_home = "Could not retrieve data."
+        col_3_away = "Could not retrieve data."
 
     # Format fourth column
     col_4_home = str(last_five_games[home_team].count('win')) + "-" + str(last_five_games[home_team].count('draw')) + '-' + str(last_five_games[home_team].count('lose'))
