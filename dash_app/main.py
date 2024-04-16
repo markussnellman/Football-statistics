@@ -4,7 +4,6 @@ from scripts.scraping import scrape_last_five_games, fetch_team_html, scrape_gam
 from .utils.helpers import format_data_to_table
 from .utils.info import table_cols, leagues
 import dash_bootstrap_components as dbc   
-import numpy as np
 import pandas as pd
 
 
@@ -165,38 +164,39 @@ def on_team_change(home_team, away_team, league, team_data, scoreboard):
     # Check that teams are properly selected
     if home_team != '' and away_team != '':
 
-        if home_team not in team_data['coach'].keys():
-            # Get home team coach for home team
-            home_team_html = fetch_team_html(home_team)
-            team_data['coach'][home_team] = scrape_coach(home_team_html)
+        # if home_team not in team_data['coach'].keys():
+        #     # Get home team coach for home team
+        #     home_team_html = fetch_team_html(home_team)
+        #     team_data['coach'][home_team] = scrape_coach(home_team_html)
 
-        if away_team not in team_data['coach'].keys():
-            # Get away team coach for away team
-            away_team_html = fetch_team_html(away_team)
-            team_data['coach'][away_team] = scrape_coach(away_team_html)
+        # if away_team not in team_data['coach'].keys():
+        #     # Get away team coach for away team
+        #     away_team_html = fetch_team_html(away_team)
+        #     team_data['coach'][away_team] = scrape_coach(away_team_html)
 
-        if home_team not in team_data['games last week'].keys():
-            # Get last weeks games for home tea
-            team_data['games last week'][home_team] = scrape_games_last_week(home_team_html)
+        # if home_team not in team_data['games last week'].keys():
+        #     # Get last weeks games for home tea
+        #     team_data['games last week'][home_team] = scrape_games_last_week(home_team_html)
 
-        if away_team not in team_data['games last week'].keys():
-            # Get last weeks games for away team
-            team_data['games last week'][away_team] = scrape_games_last_week(away_team_html)  
+        # if away_team not in team_data['games last week'].keys():
+        #     # Get last weeks games for away team
+        #     team_data['games last week'][away_team] = scrape_games_last_week(away_team_html)  
 
-        # Get scoreboard data and last five games
-        # Note that dfs need to be read as JSON
-        total_score = pd.read_json(scoreboard['total scoreboard'][league], orient='split')
-        home_score = pd.read_json(scoreboard['home scoreboard'][league], orient='split')
-        away_score = pd.read_json(scoreboard['away scoreboard'][league], orient='split')
-        last_five_games = scoreboard['last five games'][league]
+        # # Get scoreboard data and last five games
+        # # Note that dfs need to be read as JSON
+        # total_score = pd.read_json(scoreboard['total scoreboard'][league], orient='split')
+        # home_score = pd.read_json(scoreboard['home scoreboard'][league], orient='split')
+        # away_score = pd.read_json(scoreboard['away scoreboard'][league], orient='split')
+        # last_five_games = scoreboard['last five games'][league]
 
-        # Get team data
-        coach_home = team_data['coach'][home_team]
-        coach_away = team_data['coach'][away_team]
-        home_games_last_week = team_data['games last week'][home_team]
-        away_games_last_week = team_data['games last week'][away_team]
+        # # Get team data
+        # coach_home = team_data['coach'][home_team]
+        # coach_away = team_data['coach'][away_team]
+        # home_games_last_week = team_data['games last week'][home_team]
+        # away_games_last_week = team_data['games last week'][away_team]
 
-        df = format_data_to_table(home_team, away_team, total_score, home_score, away_score, last_five_games, coach_home, coach_away, home_games_last_week, away_games_last_week)
+        # df = format_data_to_table(home_team, away_team, total_score, home_score, away_score, last_five_games, coach_home, coach_away, home_games_last_week, away_games_last_week)
+        
         # Debug returning test df
         return test_df.to_dict('records'), team_data
 
