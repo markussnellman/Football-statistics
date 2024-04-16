@@ -1,4 +1,5 @@
 from dash_app import create_app
 
 app = create_app()
-# app.run_server(debug=False)
+server = app.server
+app.run_server(debug=False)

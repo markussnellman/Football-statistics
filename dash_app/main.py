@@ -7,9 +7,10 @@ import dash_bootstrap_components as dbc
 import numpy as np
 import pandas as pd
 
+
 # App
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
-server = app.server
+
 
 # Components
 league_dropdown = dcc.Dropdown(options=list(leagues.keys()), value='', id='league-dropdown')
@@ -35,7 +36,6 @@ table = dash_table.DataTable(
     },
     style_cell={'whiteSpace': 'normal'},
     )
-
 
 
 # Layout
