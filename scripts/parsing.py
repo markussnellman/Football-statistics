@@ -62,3 +62,35 @@ def parse_home_away_score(json_response: dict) -> pd.DataFrame:
 
     return df
 
+
+def parse_scraped_scoreboard(table_div: str) -> pd.DataFrame:
+    """
+    Parses scraped scoreboard in table_div.
+
+    Used in scrape methods.
+    """
+
+    table_rows = table_div.css("tr.row-body")
+
+    teams = []
+
+    for row in table_rows:
+        tds = row.css('td')
+
+        team = {
+            'name': tds[2].css_first("span").text(),
+            'position': int(tds[0].css_first("div").text()),
+            'points': int(tds[3].text()),
+            'matches': int(tds[4].text().split("\n")[1]),
+            'wins': int(tds[5].text()),
+            'draws': int(tds[6].text()),
+            'losses': int(tds[7].text()),
+            'scores for': int(tds[8].text()),
+            'scores against': int(tds[9].text()),
+        }
+        
+        teams.append(team)
+
+    df = pd.DataFrame(teams)
+
+    return df

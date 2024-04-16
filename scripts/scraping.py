@@ -2,10 +2,11 @@ import requests
 import pandas as pd
 from datetime import datetime
 from . import config
+from .parsing import parse_scraped_scoreboard
 from selectolax.parser import HTMLParser
 
 class BeSoccerNameNotFound(Exception):
-    """Exception if football team not found or could not be mapped"""
+    """Exception if league or football team not found or could not be mapped"""
     
     def __init__(self, message):
         self.message = message
@@ -14,21 +15,38 @@ class BeSoccerNameNotFound(Exception):
         return f"{self.message}"
     
 
-slug = config.PREMIER_LEAGUE_SLUG
+league_slug = config.LEAGUE_SLUG
+team_slug = config.PREMIER_LEAGUE_SLUG
 
+def fetch_league_html(league: str) -> str:
+    """Fetches the HTML content of the page containing the team's data."""
+    # Replace team name to slug
+    if league in league_slug.keys():
+        league = league_slug[league]
 
-def scrape_last_five_games() -> dict:
-    """
-    Scrapes the last five games, returns a dict with team as key and value as list of results.
-    """
+    else:
+        raise BeSoccerNameNotFound(f'Could not map {league} to slug.')
 
-    base = config.PREMIER_LEAGUE_URL
+    base = config.LEAGUE_URL + league
 
     response = requests.get(base)
 
     if response.status_code == 200:
+        return response.text
+    
+    else:
+        print(f"Error fetching from {base}: {response.status_code}")
+        return None 
 
-        html = HTMLParser(response.text)
+
+def scrape_last_five_games(response_text: str) -> dict:
+    """
+    Scrapes the last five games, returns a dict with team as key and value as list of results.
+    """
+
+    if response_text is not None:
+
+        html = HTMLParser(response_text)
 
         # Gets all rows in table
         rows = html.css_first("table.table").css("td.name")
@@ -55,15 +73,14 @@ def scrape_last_five_games() -> dict:
         return results
     
     else:
-
-        return results
+        return {}
     
 
 def fetch_team_html(team: str) -> str:
     """Fetches the HTML content of the page containing the team's data."""
     # Replace team name to slug
-    if team in slug.keys():
-        team = slug[team]
+    if team in team_slug.keys():
+        team = team_slug[team]
 
     else:
         raise BeSoccerNameNotFound(f'Could not map {team} to slug.')
@@ -143,9 +160,53 @@ def scrape_coach(response_text: str) -> dict:
 
     else:
         return {}
-
-if __name__ == "__main__":
-    print(scrape_last_five_games())
     
+
+def scrape_total_table(response_text: str) -> pd.DataFrame:
+    """Scrapes total table from response text."""
+
+    if response_text is not None:
+        html = HTMLParser(response_text)
+
+        table_div = html.css_first("div.table-body.table-custom.competition-result")
+
+        df = parse_scraped_scoreboard(table_div)
+
+        return df
+
+    else:
+        return pd.DataFrame([])
+
+
+def scrape_home_table(response_text: str) -> pd.DataFrame:
+    """Scrapes home table from response text."""
+
+    if response_text is not None:
+        html = HTMLParser(response_text)
+
+        table_div = html.css("div.table-body.table-custom.competition-result")[1]
+
+        df = parse_scraped_scoreboard(table_div)
+
+        return df
+
+    else:
+        return pd.DataFrame([])
+    
+
+def scrape_away_table(response_text: str) -> pd.DataFrame:
+    """Scrapes away table from response text."""
+
+    if response_text is not None:
+        html = HTMLParser(response_text)
+
+        table_div = html.css("div.table-body.table-custom.competition-result")[2]
+
+        df = parse_scraped_scoreboard(table_div)
+
+        return df
+
+    else:
+        return pd.DataFrame([])
 
 

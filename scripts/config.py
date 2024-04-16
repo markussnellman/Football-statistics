@@ -9,6 +9,7 @@ TOTAL_URL = os.getenv("TOTAL_URL")
 HOME_URL = os.getenv("HOME_URL")
 AWAY_URL = os.getenv("AWAY_URL")
 
+LEAGUE_URL = os.getenv("LEAGUE_URL")
 PREMIER_LEAGUE_URL = os.getenv("PREMIER_LEAGUE_URL")
 TEAM_URL = os.getenv("TEAM_URL")
 
@@ -29,6 +30,10 @@ HEADERS = {
 }
 
 # Slug
+
+LEAGUE_SLUG = {
+    'Premier League': 'premier_league',
+}
 
 PREMIER_LEAGUE_SLUG = {
     'Arsenal': 'arsenal',

@@ -1,6 +1,6 @@
 from dash import Dash, dcc, Output, Input, State, html, no_update, ctx, dash_table
 from scripts.reverse_api import get_total_score_board, get_home_score_board, get_away_score_board
-from scripts.scraping import scrape_last_five_games, fetch_team_html, scrape_games_last_week, scrape_coach
+from scripts.scraping import scrape_last_five_games, fetch_team_html, scrape_games_last_week, scrape_coach, fetch_league_html, scrape_total_table, scrape_home_table, scrape_away_table
 from .utils.helpers import format_data_to_table
 from .utils.info import table_cols, leagues
 import dash_bootstrap_components as dbc   
@@ -9,14 +9,6 @@ import pandas as pd
 
 # App
 app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
-
-# Debug: test dataframe to debug table updating on Render
-data = {
-        'Team A': ['Col 1', 'Col 2', 'Col 3', 'Col 4', 'Col 5', 'Col 6', 'Col 7', 'Col 8', 'Col 9'], 
-        'Team B': ['Col 1', 'Col 2', 'Col 3', 'Col 4', 'Col 5', 'Col 6', 'Col 7', 'Col 8', 'Col 9'],
-        }
-test_df = pd.DataFrame.from_dict(data, orient='index', columns=table_cols)
-
 
 # Components
 league_dropdown = dcc.Dropdown(options=list(leagues.keys()), value='', id='league-dropdown')
@@ -31,13 +23,13 @@ table = dash_table.DataTable(
     id = 'table',
     style_header={
         'fontWeight': 'bold',
-        'fontSize': '1em',
+        'fontSize': '0.8em',
         'whiteSpace': 'normal',
         'height': 'auto',
         'fontFamily': 'Arial, sans-serif',
     },
     style_data={
-        'fontSize': '1em',
+        'fontSize': '0.8em',
         'fontFamily': 'Arial, sans-serif',
     },
     style_cell={'whiteSpace': 'normal'},
@@ -127,16 +119,19 @@ def update_league_dropdown(league, data):
         # If not, call functions to scrape data
         # Note that dataframes need to be JSON serializable
         if league not in data['total scoreboard'].keys():
-            data['total scoreboard'][league] = get_total_score_board().to_json(date_format='iso', orient='split')
+            # All scrape methods here use the same response_text object as parameter
+            # Getting it once is enough
+            response_text = fetch_league_html("Premier League")
+            data['total scoreboard'][league] = scrape_total_table(response_text).to_json(date_format='iso', orient='split')
 
         if league not in data['home scoreboard'].keys():
-            data['home scoreboard'][league] = get_home_score_board().to_json(date_format='iso', orient='split')
+            data['home scoreboard'][league] = scrape_home_table(response_text).to_json(date_format='iso', orient='split')
 
         if league not in data['away scoreboard'].keys():
-            data['away scoreboard'][league] = get_away_score_board().to_json(date_format='iso', orient='split')
+            data['away scoreboard'][league] = scrape_away_table(response_text).to_json(date_format='iso', orient='split')
 
         if league not in data['last five games'].keys():
-            data['last five games'][league] = scrape_last_five_games()
+            data['last five games'][league] = scrape_last_five_games(response_text)
 
         return data, teams, teams
     
