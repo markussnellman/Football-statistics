@@ -174,13 +174,13 @@ def on_team_change(home_team, away_team, league, team_data, scoreboard):
             away_team_html = fetch_team_html(away_team)
             team_data['coach'][away_team] = scrape_coach(away_team_html)
 
-        # if home_team not in team_data['games last week'].keys():
-        #     # Get last weeks games for home tea
-        #     team_data['games last week'][home_team] = scrape_games_last_week(home_team_html)
+        if home_team not in team_data['games last week'].keys():
+            # Get last weeks games for home tea
+            team_data['games last week'][home_team] = scrape_games_last_week(home_team_html)
 
-        # if away_team not in team_data['games last week'].keys():
-        #     # Get last weeks games for away team
-        #     team_data['games last week'][away_team] = scrape_games_last_week(away_team_html)  
+        if away_team not in team_data['games last week'].keys():
+            # Get last weeks games for away team
+            team_data['games last week'][away_team] = scrape_games_last_week(away_team_html)  
 
         # # Get scoreboard data and last five games
         # # Note that dfs need to be read as JSON
