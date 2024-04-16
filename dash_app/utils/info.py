@@ -24,7 +24,7 @@ leagues = {
         'AFC Bournemouth',
         'Fulham',
         'Crystal Palace',
-        'Brentfod',
+        'Brentford',
         'Everton',
         'Nottingham Forest',
         'Luton Town',
