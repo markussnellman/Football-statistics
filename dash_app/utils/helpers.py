@@ -1,5 +1,6 @@
 import pandas as pd
 from .info import table_cols
+from datetime import datetime
 
 def format_data_to_table(home_team: str, away_team: str, total_score: pd.DataFrame, home_score: pd.DataFrame, away_score: pd.DataFrame, last_five_games: dict, coach_home: dict, coach_away: dict, home_games_last_week: list[str], away_games_last_week: list[str]) -> pd.DataFrame:
 
@@ -72,8 +73,16 @@ def format_data_to_table(home_team: str, away_team: str, total_score: pd.DataFra
     col_5_away = ''
 
     # Format sixth column
-    col_6_home = coach_home['name'] + ", " + str(coach_home['wins']) + "-" + str(coach_home['draws']) + "-" + str(coach_home['losses'])
-    col_6_away = coach_away['name'] + ", " + str(coach_away['wins']) + "-" + str(coach_away['draws']) + "-" + str(coach_away['losses'])
+    win_percentage_home = round(100 * coach_home['wins'] / (coach_home['wins'] + coach_home['draws'] + coach_home['losses']), 1)
+    draw_percentage_home = round(100 * coach_home['draws'] / (coach_home['wins'] + coach_home['draws'] + coach_home['losses']), 1)
+    loss_percentage_home = round(100 * coach_home['losses'] / (coach_home['wins'] + coach_home['draws'] + coach_home['losses']), 1)
+
+    win_percentage_away = round(100 * coach_away['wins'] / (coach_away['wins'] + coach_away['draws'] + coach_away['losses']), 1)
+    draw_percentage_away = round(100 * coach_away['draws'] / (coach_away['wins'] + coach_away['draws'] + coach_away['losses']), 1)
+    loss_percentage_away = round(100 * coach_away['losses'] / (coach_away['wins'] + coach_away['draws'] + coach_away['losses']), 1)
+
+    col_6_home = coach_home['name'] + ", " + str(coach_home['wins']) + " (" + str(win_percentage_home) + "%) - " + str(coach_home['draws']) + " (" + str(draw_percentage_home) + "%) - " + str(coach_home['losses']) + " (" + str(loss_percentage_home) + "%)"
+    col_6_away = coach_away['name'] + ", " + str(coach_away['wins']) + " (" + str(win_percentage_away) + "%) - " + str(coach_away['draws']) + " (" + str(draw_percentage_away) + "%) - " + str(coach_away['losses']) + " (" + str(loss_percentage_away) + "%)"
 
     # Format seventh column
     # Not yet implemented
@@ -99,3 +108,136 @@ def format_data_to_table(home_team: str, away_team: str, total_score: pd.DataFra
 
     return df
 
+
+color_scale = ['#ff3300', '#ff5200', '#ff6800', '#fe7b00', '#f59200', '#e7a900', '#d2bf00', '#bbd300', '#91e800', '#00ff33']
+
+def format_conditional_styling(home_team: str, away_team: str, total_score: pd.DataFrame, home_score: pd.DataFrame, away_score: pd.DataFrame, last_five_games: dict, coach_home: dict, coach_away: dict, home_games_last_week: list[str], away_games_last_week: list[str]) -> dict:
+    """
+    Formats the cells of the dash data-table.
+    """
+    major_color = '#90EE90'
+    mid_color = '#FFFFED'
+    minor_color = '#FF474C'
+
+    # Format second column style
+    home_pos = total_score.loc[total_score['name'] == home_team, 'position'].values[0]
+    away_pos = total_score.loc[total_score['name'] == away_team, 'position'].values[0]
+
+    column_2_style = [
+        {
+            'if': {
+                'row_index': 0,
+                'column_id': f'{table_cols[1]}',
+            },
+            'backgroundColor': major_color if home_pos < away_pos else minor_color
+        },
+        {
+            'if': {
+                'row_index': 1,
+                'column_id': f'{table_cols[1]}',
+            },
+            'backgroundColor': major_color if home_pos > away_pos else minor_color
+        }
+    ]
+
+    # Format column 3 style
+    home_points = home_score.loc[home_score['name'] == home_team, 'points'].values[0]
+    away_points = away_score.loc[away_score['name'] == away_team, 'points'].values[0]
+
+    column_3_style = [
+        {
+            'if': {
+                'row_index': 0,
+                'column_id': f'{table_cols[2]}',
+            },
+            'backgroundColor': major_color if home_points > away_points else minor_color
+        },
+        {
+            'if': {
+                'row_index': 1,
+                'column_id': f'{table_cols[2]}',
+            },
+            'backgroundColor': major_color if home_points < away_points else minor_color
+        }
+    ]
+
+    # Format column 4 style
+    last_5_games_home = last_five_games[home_team].count('win') * 3 + last_five_games[home_team].count('draw')
+    last_5_games_away = last_five_games[away_team].count('win') * 3 + last_five_games[away_team].count('draw')
+
+    column_4_style = [
+        {
+            'if': {
+                'row_index': 0,
+                'column_id': f'{table_cols[3]}',
+            },
+            'backgroundColor': major_color if last_5_games_home > last_5_games_away else (mid_color if last_5_games_home == last_5_games_away else minor_color)
+        },
+        {
+            'if': {
+                'row_index': 1,
+                'column_id': f'{table_cols[3]}',
+            },
+            'backgroundColor': major_color if last_5_games_home < last_5_games_away else (mid_color if last_5_games_home == last_5_games_away else minor_color)
+        }
+    ]
+
+    # Format sixth column style
+    win_percentage_home = round(100 * coach_home['wins'] / (coach_home['wins'] + coach_home['draws'] + coach_home['losses']), 1)
+    win_percentage_away = round(100 * coach_away['wins'] / (coach_away['wins'] + coach_away['draws'] + coach_away['losses']), 1)
+
+    column_6_style = [
+        {
+            'if': {
+                'row_index': 0,
+                'column_id': f'{table_cols[5]}',
+            },
+            'backgroundColor': major_color if win_percentage_home > win_percentage_away else (mid_color if win_percentage_home == win_percentage_away else minor_color)
+        },
+        {
+            'if': {
+                'row_index': 1,
+                'column_id': f'{table_cols[5]}',
+            },
+            'backgroundColor': major_color if win_percentage_home < win_percentage_away else (mid_color if win_percentage_home == win_percentage_away else minor_color)
+        }
+    ]
+
+    # Format eighth column style
+    if away_games_last_week != [] and home_games_last_week == []:
+        date1 = datetime.strptime(away_games_last_week[0], '%d %b. %y')
+        date2 = datetime.strptime('01 Jan. 00', '%d %b. %y')
+
+    elif away_games_last_week == [] and home_games_last_week != []:
+        date1 = datetime.strptime('01 Jan. 00', '%d %b. %y')
+        date2 = datetime.strptime(home_games_last_week[0], '%d %b. %y')
+
+    elif away_games_last_week == [] and home_games_last_week == []:
+        date1 = datetime.strptime('01 Jan. 00', '%d %b. %y')
+        date2 = datetime.strptime('01 Jan. 00', '%d %b. %y')
+
+    else:
+        date1 = datetime.strptime(away_games_last_week[0], '%d %b. %y')
+        date2 = datetime.strptime(home_games_last_week[0], '%d %b. %y')
+
+    column_8_style = [
+        {
+            'if': {
+                'row_index': 0,
+                'column_id': f'{table_cols[7]}',
+            },
+            'backgroundColor': major_color if date1 > date2 else (mid_color if date1 == date2 else minor_color)
+        },
+        {
+            'if': {
+                'row_index': 1,
+                'column_id': f'{table_cols[7]}',
+            },
+            'backgroundColor': major_color if date1 < date2 else (mid_color if date1 == date2 else minor_color)
+        }
+    ]
+  
+    return column_2_style + column_3_style + column_4_style + column_6_style + column_8_style
+
+
+ 

@@ -145,10 +145,10 @@ def scrape_coach(response_text: str) -> dict:
 
         data = div.css('div.main-line.mt10.mb5')
 
-        matches = data[0].text()
-        wins = data[1].text()
-        draws = data[2].text()
-        losses = data[3].text()
+        matches = int(data[0].text())
+        wins = int(data[1].text())
+        draws = int(data[2].text())
+        losses = int(data[3].text())
 
         return {
             'name': name,
