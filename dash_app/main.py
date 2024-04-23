@@ -4,7 +4,6 @@ from scripts.reverse_api import get_total_score_board, get_home_score_board, get
 from scripts.scraping import scrape_last_five_games, fetch_team_html, scrape_games_last_week, scrape_coach, fetch_league_html, scrape_total_table, scrape_home_table, scrape_away_table
 from .utils.helpers import format_data_to_table, format_conditional_styling
 from .utils.info import table_cols, leagues
-from openpyxl import Workbook
 import dash_bootstrap_components as dbc   
 import pandas as pd
 from io import BytesIO
