@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from .info import table_cols
 from datetime import datetime
 
@@ -73,10 +74,28 @@ def format_data_to_table(home_team: str, away_team: str, total_score: pd.DataFra
     col_5_away = ''
 
     # Format sixth column
+    if coach_home == {}:
+        # Format to present in table in the case where coach info could not be obtained
+        coach_home = {
+            'name': 'Kunde inte hitta info.',
+            'wins': np.nan,
+            'draws': np.nan,
+            'losses': np.nan,
+        }
+
     win_percentage_home = round(100 * coach_home['wins'] / (coach_home['wins'] + coach_home['draws'] + coach_home['losses']), 1)
     draw_percentage_home = round(100 * coach_home['draws'] / (coach_home['wins'] + coach_home['draws'] + coach_home['losses']), 1)
-    loss_percentage_home = round(100 * coach_home['losses'] / (coach_home['wins'] + coach_home['draws'] + coach_home['losses']), 1)
+    loss_percentage_home = round(100 * coach_home['losses'] / (coach_home['wins'] + coach_home['draws'] + coach_home['losses']), 1)   
 
+    if coach_away == {}:
+        # Format to present in table in the case where coach info could not be obtained
+        coach_away = {
+            'name': 'Kunde inte hitta info.',
+            'wins': np.nan,
+            'draws': np.nan,
+            'losses': np.nan,
+        }
+    
     win_percentage_away = round(100 * coach_away['wins'] / (coach_away['wins'] + coach_away['draws'] + coach_away['losses']), 1)
     draw_percentage_away = round(100 * coach_away['draws'] / (coach_away['wins'] + coach_away['draws'] + coach_away['losses']), 1)
     loss_percentage_away = round(100 * coach_away['losses'] / (coach_away['wins'] + coach_away['draws'] + coach_away['losses']), 1)
@@ -183,6 +202,24 @@ def format_conditional_styling(home_team: str, away_team: str, total_score: pd.D
     ]
 
     # Format sixth column style
+    if coach_home == {}:
+        # Format to present in table in the case where coach info could not be obtained
+        coach_home = {
+            'name': 'Kunde inte hitta info.',
+            'wins': np.nan,
+            'draws': np.nan,
+            'losses': np.nan,
+        }
+
+    if coach_away == {}:
+        # Format to present in table in the case where coach info could not be obtained
+        coach_away = {
+            'name': 'Kunde inte hitta info.',
+            'wins': np.nan,
+            'draws': np.nan,
+            'losses': np.nan,
+        }
+
     win_percentage_home = round(100 * coach_home['wins'] / (coach_home['wins'] + coach_home['draws'] + coach_home['losses']), 1)
     win_percentage_away = round(100 * coach_away['wins'] / (coach_away['wins'] + coach_away['draws'] + coach_away['losses']), 1)
 

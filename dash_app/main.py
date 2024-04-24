@@ -77,21 +77,14 @@ def download_as_excel(n_clicks, data, styles):
                     
                     # Check that df is not None (corresponding to empty match)
                     if isinstance(df, pd.DataFrame):
-                        df.to_excel(writer, sheet_name="Sheet1", startrow = 2 + 5 * i, header=False, index=False)
+                        df.to_excel(writer, sheet_name="Sheet1", startrow = 1 + 5 * i, header=True, index=False)
 
 
                 # Access the workbook and worksheet objects
                 workbook = writer.book
                 worksheet = writer.sheets['Sheet1']
 
-                # Write column names for each header
-                for i, df in enumerate(dfs):
-
-                    if isinstance(df, pd.DataFrame):
-                        for col_idx, col_name in enumerate(df.columns, start=0):
-                            worksheet.write(i * 5 + 1, col_idx, col_name)
- 
-                # Write headers for each table
+                # Write match for each table
                 for i, df in enumerate(dfs):
                     
                     # Check that df is not None (corresponding to empty match)
@@ -100,7 +93,7 @@ def download_as_excel(n_clicks, data, styles):
                 
               
             output.seek(0)  # Move the pointer to the start of the BytesIO object
-            return dcc.send_bytes(output.read(), filename="custom_excel_file.xlsx")
+            return dcc.send_bytes(output.read(), filename="matcher.xlsx")
 
         else:
             return no_update

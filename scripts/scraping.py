@@ -141,22 +141,29 @@ def scrape_coach(response_text: str) -> dict:
 
         div = html.css_first('div#mod_coachStats')
 
-        name = div.css_first('p.mb5').text()
+        # In some cases, there is no coach statistics on the site.
+        # In such a case "div" will be None and we get an AttributeError
+        # when calling css_first().
+        try:
+            name = div.css_first('p.mb5').text()
 
-        data = div.css('div.main-line.mt10.mb5')
+            data = div.css('div.main-line.mt10.mb5')
 
-        matches = int(data[0].text())
-        wins = int(data[1].text())
-        draws = int(data[2].text())
-        losses = int(data[3].text())
+            matches = int(data[0].text())
+            wins = int(data[1].text())
+            draws = int(data[2].text())
+            losses = int(data[3].text())
 
-        return {
-            'name': name,
-            'matches': matches,
-            'wins': wins,
-            'draws': draws,
-            'losses': losses,
-        }
+            return {
+                'name': name,
+                'matches': matches,
+                'wins': wins,
+                'draws': draws,
+                'losses': losses,
+            }
+        
+        except AttributeError:
+            return {}
 
     else:
         return {}
