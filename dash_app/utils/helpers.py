@@ -277,4 +277,46 @@ def format_conditional_styling(home_team: str, away_team: str, total_score: pd.D
     return column_2_style + column_3_style + column_4_style + column_6_style + column_8_style
 
 
- 
+"""
+Style format
+[[{'if': {'row_index': 0, 'column_id': 'Tabellplacering, Poäng, Målskillnad'}, 'backgroundColor': '#90EE90'}, {'if': {'row_index': 1, 'column_id': 'Tabellplacering, Poäng, Målskillnad'}, 'backgroundColor': '#FF474C'}, {'if': {'row_index': 0, 'column_id': 'Hemma/borta resultat, målskillnad'}, 'backgroundColor': '#90EE90'}, {'if': {'row_index': 1, 'column_id': 'Hemma/borta resultat, målskillnad'}, 'backgroundColor': '#FF474C'}, {'if': {'row_index': 0, 'column_id': 'Form senaste 5 matcherna'}, 'backgroundColor': '#90EE90'}, {'if': {'row_index': 1, 'column_id': 'Form senaste 5 matcherna'}, 'backgroundColor': '#FF474C'}, {'if': {'row_index': 0, 'column_id': 'Tränare'}, 'backgroundColor': '#90EE90'}, {'if': {'row_index': 1, 'column_id': 'Tränare'}, 'backgroundColor': '#FF474C'}, {'if': {'row_index': 0, 'column_id': 'Matcher som spelats senaste 7 dagarna'}, 'backgroundColor': '#90EE90'}, {'if': {'row_index': 1, 'column_id': 'Matcher som spelats senaste 7 dagarna'}, 'backgroundColor': '#FF474C'}], None]
+
+Table is accessed as a list in a list so style[0] = list of styles for first table
+Then each dict goes column first, so the two first dicts are the first column, row 0 and 1 respectively.
+"""
+        
+def table_style_to_cell_map(style_data: list) -> dict:
+    """
+    Turns style data which is a list of lists containing dicts to 
+    a dict of Excel cell - background color key - value pairs.
+    """
+
+    excel_cols = {
+        table_cols[0]: 'A',
+        table_cols[1]: 'B',
+        table_cols[2]: 'C',
+        table_cols[3]: 'D',
+        table_cols[4]: 'E',
+        table_cols[5]: 'F',
+        table_cols[6]: 'G',
+        table_cols[7]: 'H',
+        table_cols[8]: 'I',
+    }
+
+    excel_style = {}
+
+    df_idx = 0
+    # loop over each sublist
+    for style_lst in style_data:
+        if style_lst != None:
+            # loop over each dict corresponding to a cell
+            for dct in style_lst:
+                cell_col = excel_cols[dct['if']['column_id']]
+                cell_row = dct['if']['row_index'] + 3 + 5 * df_idx
+                cell_background = dct['backgroundColor'].replace("#", "")
+
+                excel_style[cell_col + str(cell_row)] = cell_background
+
+            df_idx += 1
+
+    return excel_style

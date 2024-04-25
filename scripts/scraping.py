@@ -14,7 +14,7 @@ class BeSoccerNameNotFound(Exception):
     def __str__(self):
         return f"{self.message}"
     
-
+    
 league_slug = config.LEAGUE_SLUG
 team_slug = config.PREMIER_LEAGUE_SLUG
 

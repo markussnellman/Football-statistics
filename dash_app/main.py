@@ -2,11 +2,12 @@ from dash import Dash, dcc, Output, Input, State, html, no_update, dash_table, M
 from dash.exceptions import PreventUpdate
 from scripts.reverse_api import get_total_score_board, get_home_score_board, get_away_score_board
 from scripts.scraping import scrape_last_five_games, fetch_team_html, scrape_games_last_week, scrape_coach, fetch_league_html, scrape_total_table, scrape_home_table, scrape_away_table
-from .utils.helpers import format_data_to_table, format_conditional_styling
+from .utils.helpers import format_data_to_table, format_conditional_styling, table_style_to_cell_map
 from .utils.info import table_cols, leagues
 import dash_bootstrap_components as dbc   
 import pandas as pd
 from io import BytesIO
+from openpyxl.styles import PatternFill
 
 
 # App
@@ -69,43 +70,69 @@ def download_as_excel(n_clicks, data, styles):
 
             # Create a BytesIO object to hold the Excel file content in memory
             output = BytesIO()
+            # 'xlsxwriter' or 'openpyxl'
+            # with pd.ExcelWriter(output, engine='xlxswriter') as writer:
+                
+            #     # Access the workbook and worksheet objects
+            #     workbook = writer.book
+            #     workbook.add_worksheet('Sheet1')
+            #     worksheet = writer.sheets['Sheet1']
 
-            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+            #     # Write each df to excel
+            #     for i, df in enumerate(dfs):
+            #         # Check that df is not None (corresponding to empty match)
+            #         if isinstance(df, pd.DataFrame):
+            #             df.to_excel(writer, sheet_name="Sheet1", startrow = 1 + 5 * i, header=True, index=False)
+
+            #     # Write match for each table
+            #     for i, df in enumerate(dfs):
+            #         # Check that df is not None (corresponding to empty match)
+            #         if isinstance(df, pd.DataFrame):
+            #             worksheet.write(5 * i, 0, f'Match {i+1}')
+
+
+            #     # Apply styling
+            #     # Turn styles to cell map
+            #     cell_colors = table_style_to_cell_map(styles)
+            #     print(cell_colors)
+
+            #     # Loop over cells and corresponding colors and set the background color
+            #     # Contrived code, but could not find better option
+            #     # Applying styling first because the write function requires cell content to be written
+            #     # which otherwise would overwrite the data
+            #     for cell, color in cell_colors.items():
+            #         cell_format = workbook.add_format({'bg_color': color})
+            #         worksheet.write(cell, cell_format)
+
+            with pd.ExcelWriter(output, engine='openpyxl') as writer:
 
                 # Write each df to excel
                 for i, df in enumerate(dfs):
-                    
                     # Check that df is not None (corresponding to empty match)
                     if isinstance(df, pd.DataFrame):
                         df.to_excel(writer, sheet_name="Sheet1", startrow = 1 + 5 * i, header=True, index=False)
 
-
-                # Access the workbook and worksheet objects
                 workbook = writer.book
-                worksheet = writer.sheets['Sheet1']
+                ws = workbook.active
 
                 # Write match for each table
                 for i, df in enumerate(dfs):
-                    
                     # Check that df is not None (corresponding to empty match)
                     if isinstance(df, pd.DataFrame):
-                        worksheet.write(5 * i, 0, f'Match {i+1}')
-                
-              
+                        # worksheet.write(5 * i, 0, f'Match {i+1}')
+                        ws.cell(row = 5 * i + 1, column=1, value=f'Match {i+1}')
+
+                # Apply styling
+                # Turn styles to cell map
+                cell_colors = table_style_to_cell_map(styles)
+                for cell, color in cell_colors.items():
+                    ws[cell].fill = PatternFill(bgColor=color, fill_type="solid")
+        
             output.seek(0)  # Move the pointer to the start of the BytesIO object
             return dcc.send_bytes(output.read(), filename="matcher.xlsx")
 
         else:
             return no_update
-        
-
-"""
-Style format
-[[{'if': {'row_index': 0, 'column_id': 'Tabellplacering, Poäng, Målskillnad'}, 'backgroundColor': '#90EE90'}, {'if': {'row_index': 1, 'column_id': 'Tabellplacering, Poäng, Målskillnad'}, 'backgroundColor': '#FF474C'}, {'if': {'row_index': 0, 'column_id': 'Hemma/borta resultat, målskillnad'}, 'backgroundColor': '#90EE90'}, {'if': {'row_index': 1, 'column_id': 'Hemma/borta resultat, målskillnad'}, 'backgroundColor': '#FF474C'}, {'if': {'row_index': 0, 'column_id': 'Form senaste 5 matcherna'}, 'backgroundColor': '#90EE90'}, {'if': {'row_index': 1, 'column_id': 'Form senaste 5 matcherna'}, 'backgroundColor': '#FF474C'}, {'if': {'row_index': 0, 'column_id': 'Tränare'}, 'backgroundColor': '#90EE90'}, {'if': {'row_index': 1, 'column_id': 'Tränare'}, 'backgroundColor': '#FF474C'}, {'if': {'row_index': 0, 'column_id': 'Matcher som spelats senaste 7 dagarna'}, 'backgroundColor': '#90EE90'}, {'if': {'row_index': 1, 'column_id': 'Matcher som spelats senaste 7 dagarna'}, 'backgroundColor': '#FF474C'}], None]
-
-Table is accessed as a list in a list so style[0] = list of styles for first table
-Then each dict goes column first, so the two first dicts are the first column, row 0 and 1 respectively.
-"""
         
 
 @app.callback(Output('component-container', 'children'),
@@ -235,16 +262,28 @@ def update_scoreboards(league, data):
             # All scrape methods here use the same response_text object as parameter
             # Getting it once is enough
             response_text = fetch_league_html("Premier League")
-            data['total scoreboard'][league] = scrape_total_table(response_text).to_json(date_format='iso', orient='split')
+            total_table = scrape_total_table(response_text)
+            # Change Wolves -> Wolverhampton
+            total_table.loc[total_table['name'] == 'Wolves', 'name'] = 'Wolverhampton'
+            data['total scoreboard'][league] = total_table.to_json(date_format='iso', orient='split')
 
         if league not in data['home scoreboard'].keys():
-            data['home scoreboard'][league] = scrape_home_table(response_text).to_json(date_format='iso', orient='split')
+            home_table = scrape_home_table(response_text)
+            # Change Wolves -> Wolverhampton
+            home_table.loc[home_table['name'] == 'Wolves', 'name'] = 'Wolverhampton'
+            data['home scoreboard'][league] = home_table.to_json(date_format='iso', orient='split')
 
         if league not in data['away scoreboard'].keys():
-            data['away scoreboard'][league] = scrape_away_table(response_text).to_json(date_format='iso', orient='split')
+            away_table = scrape_away_table(response_text)
+            # Change Wolves -> Wolverhampton
+            away_table.loc[away_table['name'] == 'Wolves', 'name'] = 'Wolverhampton'
+            data['away scoreboard'][league] = away_table.to_json(date_format='iso', orient='split')
 
         if league not in data['last five games'].keys():
-            data['last five games'][league] = scrape_last_five_games(response_text)
+            last_five_games = scrape_last_five_games(response_text)
+            # Change Wolves -> Wolverhampton
+            last_five_games['Wolverhampton'] = last_five_games.pop('Wolves')
+            data['last five games'][league] = last_five_games
 
         return data
     

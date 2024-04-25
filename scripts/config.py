@@ -33,6 +33,7 @@ HEADERS = {
 
 LEAGUE_SLUG = {
     'Premier League': 'premier_league',
+    'Championship': 'championship',
 }
 
 PREMIER_LEAGUE_SLUG = {
@@ -50,6 +51,7 @@ PREMIER_LEAGUE_SLUG = {
     'Wolves': 'wolverhampton',
     'Wolverhampton': 'wolverhampton',
     'AFC Bournemouth': 'afc-bournemouth',
+    'Chelsea': 'chelsea-fc',
     'Fulham': 'fulham',
     'Crystal Palace': 'crystal-palace-fc',
     'Brentford': 'brentford',
@@ -57,5 +59,10 @@ PREMIER_LEAGUE_SLUG = {
     'Nottingham Forest': 'nottingham-forest-fc',
     'Luton Town': 'luton-town-fc',
     'Burnley': 'burnley-fc',
-    'Sheffield United': 'sheffield-united'
+    'Sheffield United': 'sheffield-united',
+}
+
+CHAMPIONSHIP_SLUG = {
+    'Leicester City': 'leicester-city-fc',
+    'Leeds United': 'leeds-united-afc',
 }

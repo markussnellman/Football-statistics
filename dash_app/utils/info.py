@@ -19,6 +19,7 @@ leagues = {
         'Manchester United',
         'West Ham',
         'Newcastle',
+        'Chelsea',
         'Brighton & Hove Albion',
         'Wolverhampton',
         'AFC Bournemouth',
@@ -30,5 +31,9 @@ leagues = {
         'Luton Town',
         'Burnley',
         'Sheffield United',
+    ],
+    'Championship': [
+        'Leicester City',
+        'Leeds United',
     ]
 }
