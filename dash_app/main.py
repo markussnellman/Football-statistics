@@ -174,7 +174,10 @@ def add_team(n_clicks, children):
 
         container = html.Div(
             [
-                html.H3(f"Match {n_clicks}", className='mb-3'),
+                html.H3(f"Match {n_clicks}", className='mb-3', id={'type': 'match-title', 'index': n_clicks}),
+                dbc.Button(
+                    "Ta bort", id={'type': 'remove-button', 'index': n_clicks}, className="me-3 mb-3",
+                ),
                 dbc.Row(
                     [
                         dbc.Col(
@@ -208,7 +211,7 @@ def add_team(n_clicks, children):
                         table,
                     ], className='mb-3',
                 )
-            ]
+            ], id={'type': 'match-container', 'index': n_clicks}, 
         )
 
         children.append(container)
@@ -217,6 +220,14 @@ def add_team(n_clicks, children):
           
     else:
         return no_update
+    
+
+@app.callback(Output({'type': 'match-container', 'index': MATCH}, 'style'),
+              Input({'type': 'remove-button', 'index': MATCH}, 'n_clicks'),
+              prevent_initial_call=True)
+def remove_match(_):
+    return {"display": "none"}
+    
 
 # Problem: all outputs must be of MATCH index! So can't update data since it is not a match
 @app.callback(Output({'type': 'home-dropdown', 'index': MATCH}, 'options'),
@@ -246,7 +257,8 @@ def update_scoreboards(league, data):
     Updates scoreboard when any league dropdown changes.
     """
 
-    if league != [] and league is not None:
+    if league != [''] and league is not None:
+        print(league)
         # Due to the Input: ALL from dropdowns, leage will be a list, so we need to access correct idx
         triggered = ctx.triggered_id['index']
         league = league[triggered - 1]
