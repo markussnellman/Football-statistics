@@ -1,3 +1,5 @@
+import scripts.config
+
 table_cols = ['Lag',
             'Tabellplacering, Poäng, Målskillnad', 
             'Hemma/borta resultat, målskillnad',
@@ -21,7 +23,7 @@ leagues = {
         'Newcastle',
         'Chelsea',
         'Brighton & Hove Albion',
-        'Wolverhampton',
+        'Wolves',
         'AFC Bournemouth',
         'Fulham',
         'Crystal Palace',
@@ -32,8 +34,5 @@ leagues = {
         'Burnley',
         'Sheffield United',
     ],
-    'Championship': [
-        'Leicester City',
-        'Leeds United',
-    ]
+    'Championship': list(scripts.config.CHAMPIONSHIP_SLUG.keys()),
 }

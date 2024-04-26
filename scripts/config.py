@@ -63,6 +63,30 @@ PREMIER_LEAGUE_SLUG = {
 }
 
 CHAMPIONSHIP_SLUG = {
-    'Leicester City': 'leicester-city-fc',
+    'Leicester': 'leicester-city-fc',
     'Leeds United': 'leeds-united-afc',
+    'Ipswich Town': 'ipswich-town-fc',
+    'Southampton': 'southampton-fc',
+    'West Bromwich Albion': 'west-bromwich',
+    'Norwich City': 'norwich-city-fc',
+    'Hull City': 'hull-city',
+    'Coventry City': 'coventry-city',
+    'Middlesbrough': 'middlesbrough-fc',
+    'Preston North End': 'preston-north-end',
+    'Cardiff City': 'cardiff-city-fc',
+    'Bristol City': 'bristol-city-fc',
+    'Sunderland': 'sunderland-afc',
+    'Swansea City': 'swansea-city-afc',
+    'Watford': 'watford-fc',
+    'Millwall': 'millwall-fc',
+    'Stoke City': 'stoke-city',
+    'Queens Park Rangers': 'queens-park-rangers-fc',
+    'Blackburn Rovers': 'blackburn-rovers-fc',
+    'Plymouth Argyle': 'plymouth-argyle',
+    'Sheffield Wednesday': 'sheffield-wednesday-fc',
+    'Birmingham City': 'birmingham-city-fc',
+    'Huddersfield Town': 'huddersfield-town-fc',
+    'Rotherham United': 'rotherham-united', 
 }
+
+ALL_TEAMS_SLUG = {**PREMIER_LEAGUE_SLUG, **CHAMPIONSHIP_SLUG}

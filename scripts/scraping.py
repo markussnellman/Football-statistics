@@ -5,6 +5,10 @@ from . import config
 from .parsing import parse_scraped_scoreboard
 from selectolax.parser import HTMLParser
 
+# Todo: implement the integration of other Leagues
+# Need to come up with some idea on how to use the team_slug
+# Idea: combine league team slugs to one dict
+
 class BeSoccerNameNotFound(Exception):
     """Exception if league or football team not found or could not be mapped"""
     
@@ -14,9 +18,9 @@ class BeSoccerNameNotFound(Exception):
     def __str__(self):
         return f"{self.message}"
     
-    
+
 league_slug = config.LEAGUE_SLUG
-team_slug = config.PREMIER_LEAGUE_SLUG
+team_slug = config.ALL_TEAMS_SLUG
 
 def fetch_league_html(league: str) -> str:
     """Fetches the HTML content of the page containing the team's data."""
@@ -42,6 +46,8 @@ def fetch_league_html(league: str) -> str:
 def scrape_last_five_games(response_text: str) -> dict:
     """
     Scrapes the last five games, returns a dict with team as key and value as list of results.
+
+    Uses response_text from fetch_league_html().
     """
 
     if response_text is not None:
@@ -170,7 +176,9 @@ def scrape_coach(response_text: str) -> dict:
     
 
 def scrape_total_table(response_text: str) -> pd.DataFrame:
-    """Scrapes total table from response text."""
+    """Scrapes total table from response text.
+    
+    Uses response_text from fetch_league_html()."""
 
     if response_text is not None:
         html = HTMLParser(response_text)
@@ -186,7 +194,9 @@ def scrape_total_table(response_text: str) -> pd.DataFrame:
 
 
 def scrape_home_table(response_text: str) -> pd.DataFrame:
-    """Scrapes home table from response text."""
+    """Scrapes home table from response text.
+    
+    Uses response_text from fetch_league_html()."""
 
     if response_text is not None:
         html = HTMLParser(response_text)
@@ -202,7 +212,9 @@ def scrape_home_table(response_text: str) -> pd.DataFrame:
     
 
 def scrape_away_table(response_text: str) -> pd.DataFrame:
-    """Scrapes away table from response text."""
+    """Scrapes away table from response text.
+    
+    Uses response_text from fetch_league_html()."""
 
     if response_text is not None:
         html = HTMLParser(response_text)

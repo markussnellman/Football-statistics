@@ -251,38 +251,26 @@ def update_scoreboards(league, data):
         triggered = ctx.triggered_id['index']
         league = league[triggered - 1]
 
-        if league == None:
-            return no_update
-
         # Check if scoreboards not already populated
         # If not, call functions to scrape data
         # Note that dataframes need to be JSON serializable
         if league not in data['total scoreboard'].keys():
-
             # All scrape methods here use the same response_text object as parameter
             # Getting it once is enough
-            response_text = fetch_league_html("Premier League")
+            response_text = fetch_league_html(league)
             total_table = scrape_total_table(response_text)
-            # Change Wolves -> Wolverhampton
-            total_table.loc[total_table['name'] == 'Wolves', 'name'] = 'Wolverhampton'
             data['total scoreboard'][league] = total_table.to_json(date_format='iso', orient='split')
 
         if league not in data['home scoreboard'].keys():
             home_table = scrape_home_table(response_text)
-            # Change Wolves -> Wolverhampton
-            home_table.loc[home_table['name'] == 'Wolves', 'name'] = 'Wolverhampton'
             data['home scoreboard'][league] = home_table.to_json(date_format='iso', orient='split')
 
         if league not in data['away scoreboard'].keys():
             away_table = scrape_away_table(response_text)
-            # Change Wolves -> Wolverhampton
-            away_table.loc[away_table['name'] == 'Wolves', 'name'] = 'Wolverhampton'
             data['away scoreboard'][league] = away_table.to_json(date_format='iso', orient='split')
 
         if league not in data['last five games'].keys():
             last_five_games = scrape_last_five_games(response_text)
-            # Change Wolves -> Wolverhampton
-            last_five_games['Wolverhampton'] = last_five_games.pop('Wolves')
             data['last five games'][league] = last_five_games
 
         return data

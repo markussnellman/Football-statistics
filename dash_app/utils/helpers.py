@@ -5,6 +5,18 @@ from datetime import datetime
 
 def format_data_to_table(home_team: str, away_team: str, total_score: pd.DataFrame, home_score: pd.DataFrame, away_score: pd.DataFrame, last_five_games: dict, coach_home: dict, coach_away: dict, home_games_last_week: list[str], away_games_last_week: list[str]) -> pd.DataFrame:
 
+    # Debug
+    # print('Home team:', home_team)
+    # print('Away team:', away_team)
+    # print('Total score', total_score)
+    # print('Home score', home_score)
+    # print('Away score', away_score)
+    # print('Last five games', last_five_games)
+    # print('Coach home', coach_home)
+    # print('Coach away',coach_away)
+    # print('Home games last week', home_games_last_week)
+    # print('Away games last week', away_games_last_week)
+
     # Format first column
     col_1_home = 'Hemma:' + " " + home_team
     col_1_away = 'Borta:' + " " + away_team
