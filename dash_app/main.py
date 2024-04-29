@@ -1,13 +1,12 @@
 from dash import Dash, dcc, Output, Input, State, html, no_update, dash_table, MATCH, ALL, ctx
 from dash.exceptions import PreventUpdate
-from scripts.reverse_api import get_total_score_board, get_home_score_board, get_away_score_board
 from scripts.scraping import scrape_last_five_games, fetch_team_html, scrape_games_last_week, scrape_coach, fetch_league_html, scrape_total_table, scrape_home_table, scrape_away_table
 from .utils.helpers import format_data_to_table, format_conditional_styling, table_style_to_cell_map
 from .utils.info import table_cols, leagues
 import dash_bootstrap_components as dbc   
 import pandas as pd
+import xlsxwriter
 from io import BytesIO
-from openpyxl.styles import PatternFill
 
 
 # App
@@ -49,90 +48,71 @@ app.layout = html.Div(
 )
 
 
-# Callbacks
+# Callbacks   
 @app.callback(Output('download-component', 'data'),
               Input('save-matches-button', 'n_clicks'),
               State({'type': 'table', 'index': ALL}, 'data'),
               State({'type': 'table', 'index': ALL}, 'style_data_conditional'),
+              State({'type': 'match-container', 'index': ALL}, 'style'),
               prevent_initial_call=True)
-def download_as_excel(n_clicks, data, styles):
-    """
-    Converts data in datatables to excel format and opens prompt for user to download.
+def save_excel_new(n_clicks, data, data_styles, display_styles):
 
-    Maintains datatable style through "style_data_conditional"
-    """
-    if n_clicks and data != []:
-
+    if n_clicks and data != [] and not all(isinstance(e, dict) for e in display_styles):
         # Convert data from tables to dataframes
-        dfs = [pd.DataFrame(d) for d in data if d != None]
+        # To fix a certain bug, set to None otherwise
+        dfs = [pd.DataFrame(d) if d != None else None for d in data]
 
-        if dfs != []:
+        styles = table_style_to_cell_map(data_styles)
 
-            # Create a BytesIO object to hold the Excel file content in memory
-            output = BytesIO()
-            # 'xlsxwriter' or 'openpyxl'
-            # with pd.ExcelWriter(output, engine='xlxswriter') as writer:
-                
-            #     # Access the workbook and worksheet objects
-            #     workbook = writer.book
-            #     workbook.add_worksheet('Sheet1')
-            #     worksheet = writer.sheets['Sheet1']
+        output = BytesIO()
 
-            #     # Write each df to excel
-            #     for i, df in enumerate(dfs):
-            #         # Check that df is not None (corresponding to empty match)
-            #         if isinstance(df, pd.DataFrame):
-            #             df.to_excel(writer, sheet_name="Sheet1", startrow = 1 + 5 * i, header=True, index=False)
+        writer = pd.ExcelWriter(output, engine='xlsxwriter')
 
-            #     # Write match for each table
-            #     for i, df in enumerate(dfs):
-            #         # Check that df is not None (corresponding to empty match)
-            #         if isinstance(df, pd.DataFrame):
-            #             worksheet.write(5 * i, 0, f'Match {i+1}')
+        workbook = None
+        worksheet = None
 
+        non_empty_df_number = 0
 
-            #     # Apply styling
-            #     # Turn styles to cell map
-            #     cell_colors = table_style_to_cell_map(styles)
-            #     print(cell_colors)
+        for df_number, df in enumerate(dfs):
+            # Checks that data is present and that it is not a deleted match
+            if isinstance(df, pd.DataFrame) and display_styles[df_number] == None:
+                df.to_excel(writer, sheet_name="Sheet1", index=False, header=True, startrow = 1 + 5 * non_empty_df_number)
 
-            #     # Loop over cells and corresponding colors and set the background color
-            #     # Contrived code, but could not find better option
-            #     # Applying styling first because the write function requires cell content to be written
-            #     # which otherwise would overwrite the data
-            #     for cell, color in cell_colors.items():
-            #         cell_format = workbook.add_format({'bg_color': color})
-            #         worksheet.write(cell, cell_format)
-
-            with pd.ExcelWriter(output, engine='openpyxl') as writer:
-
-                # Write each df to excel
-                for i, df in enumerate(dfs):
-                    # Check that df is not None (corresponding to empty match)
-                    if isinstance(df, pd.DataFrame):
-                        df.to_excel(writer, sheet_name="Sheet1", startrow = 1 + 5 * i, header=True, index=False)
-
+                # Access the workbook and worksheet objects
                 workbook = writer.book
-                ws = workbook.active
+                worksheet = writer.sheets["Sheet1"]
 
-                # Write match for each table
-                for i, df in enumerate(dfs):
-                    # Check that df is not None (corresponding to empty match)
-                    if isinstance(df, pd.DataFrame):
-                        # worksheet.write(5 * i, 0, f'Match {i+1}')
-                        ws.cell(row = 5 * i + 1, column=1, value=f'Match {i+1}')
+                bold = workbook.add_format({'bold': True})
+                worksheet.write(non_empty_df_number * 5, 0, f"Match {non_empty_df_number + 1}", bold)
 
-                # Apply styling
-                # Turn styles to cell map
-                cell_colors = table_style_to_cell_map(styles)
-                for cell, color in cell_colors.items():
-                    ws[cell].fill = PatternFill(bgColor=color, fill_type="solid")
-        
+                # Apply styles to cells
+                # We need to rewrite the pandas data
+                values = df.values
+
+                for row in range(values.shape[0]):
+                    for col in range(values.shape[1]):
+                        color = workbook.add_format()
+                        color.set_bg_color(styles[non_empty_df_number, row, col])
+                        # When writing, row must be incremented by two due to Match label and column headers
+                        worksheet.write(row + 2 + 5 * non_empty_df_number, col, values[row, col], color)
+
+                non_empty_df_number += 1
+
+        # In the case where we have a removed dataset + an empty dataset
+        if worksheet != None:
+            # This makes sure the columns expand to fit the text
+            worksheet.autofit()
+            
+            # Writer needs to be closed first
+            writer.close()
             output.seek(0)  # Move the pointer to the start of the BytesIO object
             return dcc.send_bytes(output.read(), filename="matcher.xlsx")
-
+        
         else:
             return no_update
+        
+    else:
+        return no_update
         
 
 @app.callback(Output('component-container', 'children'),
@@ -227,7 +207,7 @@ def add_team(n_clicks, children):
               prevent_initial_call=True)
 def remove_match(_):
     return {"display": "none"}
-    
+
 
 # Problem: all outputs must be of MATCH index! So can't update data since it is not a match
 @app.callback(Output({'type': 'home-dropdown', 'index': MATCH}, 'options'),

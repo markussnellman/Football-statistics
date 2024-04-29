@@ -297,25 +297,27 @@ Table is accessed as a list in a list so style[0] = list of styles for first tab
 Then each dict goes column first, so the two first dicts are the first column, row 0 and 1 respectively.
 """
         
-def table_style_to_cell_map(style_data: list) -> dict:
+def table_style_to_cell_map(style_data: list) -> list:
     """
     Turns style data which is a list of lists containing dicts to 
     a dict of Excel cell - background color key - value pairs.
     """
 
     excel_cols = {
-        table_cols[0]: 'A',
-        table_cols[1]: 'B',
-        table_cols[2]: 'C',
-        table_cols[3]: 'D',
-        table_cols[4]: 'E',
-        table_cols[5]: 'F',
-        table_cols[6]: 'G',
-        table_cols[7]: 'H',
-        table_cols[8]: 'I',
+        table_cols[0]: 0,
+        table_cols[1]: 1,
+        table_cols[2]: 2,
+        table_cols[3]: 3,
+        table_cols[4]: 4,
+        table_cols[5]: 5,
+        table_cols[6]: 6,
+        table_cols[7]: 7,
+        table_cols[8]: 8,
     }
 
-    excel_style = {}
+    n_styles = len([_ for _ in style_data if _ != None])
+
+    excel_style = np.array([[['#FFFFFF'] * 9 ] * 2] * n_styles)
 
     df_idx = 0
     # loop over each sublist
@@ -324,10 +326,10 @@ def table_style_to_cell_map(style_data: list) -> dict:
             # loop over each dict corresponding to a cell
             for dct in style_lst:
                 cell_col = excel_cols[dct['if']['column_id']]
-                cell_row = dct['if']['row_index'] + 3 + 5 * df_idx
-                cell_background = dct['backgroundColor'].replace("#", "")
-
-                excel_style[cell_col + str(cell_row)] = cell_background
+                cell_row = dct['if']['row_index']
+                cell_background = dct['backgroundColor']
+   
+                excel_style[df_idx, cell_row, cell_col] = cell_background
 
             df_idx += 1
 
