@@ -56,6 +56,9 @@ app.layout = html.Div(
               State({'type': 'match-container', 'index': ALL}, 'style'),
               prevent_initial_call=True)
 def save_excel_new(n_clicks, data, data_styles, display_styles):
+    """
+    Saves the content of all tables with data as a formatted excel doc.
+    """
 
     if n_clicks and data != [] and not all(isinstance(e, dict) for e in display_styles):
         # Convert data from tables to dataframes
@@ -86,9 +89,8 @@ def save_excel_new(n_clicks, data, data_styles, display_styles):
                 worksheet.write(non_empty_df_number * 5, 0, f"Match {non_empty_df_number + 1}", bold)
 
                 # Apply styles to cells
-                # We need to rewrite the pandas data
+                # We need to rewrite the pandas data because xlsxwriter can't style cells without writing data
                 values = df.values
-
                 for row in range(values.shape[0]):
                     for col in range(values.shape[1]):
                         color = workbook.add_format()
@@ -209,6 +211,26 @@ def remove_match(_):
     return {"display": "none"}
 
 
+@app.callback(Output({'type': 'match-title', 'index': ALL}, 'children'),
+              Input('add-team-button', 'n_clicks'),
+              Input({'type': 'match-container', 'index': ALL}, 'style'),
+              prevent_initial_call=False)
+def update_titles(_, styles):
+    """
+    Fix titles when we press add or remove match.
+    """
+    print("Clicked!")
+    print(styles)
+    new_titles = [''] * len(styles)
+    match_index = 1
+    for i in range(len(styles)):
+        if styles[i] == None:
+            new_titles[i] = f"Match {match_index}"
+            match_index += 1
+
+    return new_titles
+
+
 # Problem: all outputs must be of MATCH index! So can't update data since it is not a match
 @app.callback(Output({'type': 'home-dropdown', 'index': MATCH}, 'options'),
             Output({'type': 'away-dropdown', 'index': MATCH}, 'options'),
@@ -236,36 +258,38 @@ def update_scoreboards(league, data):
     """
     Updates scoreboard when any league dropdown changes.
     """
-
     if league != [''] and league is not None:
-        print(league)
         # Due to the Input: ALL from dropdowns, leage will be a list, so we need to access correct idx
         triggered = ctx.triggered_id['index']
         league = league[triggered - 1]
 
-        # Check if scoreboards not already populated
-        # If not, call functions to scrape data
-        # Note that dataframes need to be JSON serializable
-        if league not in data['total scoreboard'].keys():
-            # All scrape methods here use the same response_text object as parameter
-            # Getting it once is enough
-            response_text = fetch_league_html(league)
-            total_table = scrape_total_table(response_text)
-            data['total scoreboard'][league] = total_table.to_json(date_format='iso', orient='split')
+        if league != '':
 
-        if league not in data['home scoreboard'].keys():
-            home_table = scrape_home_table(response_text)
-            data['home scoreboard'][league] = home_table.to_json(date_format='iso', orient='split')
+            # Check if scoreboards not already populated
+            # If not, call functions to scrape data
+            # Note that dataframes need to be JSON serializable
+            if league not in data['total scoreboard'].keys():
+                # All scrape methods here use the same response_text object as parameter
+                # Getting it once is enough
+                response_text = fetch_league_html(league)
+                total_table = scrape_total_table(response_text)
+                data['total scoreboard'][league] = total_table.to_json(date_format='iso', orient='split')
 
-        if league not in data['away scoreboard'].keys():
-            away_table = scrape_away_table(response_text)
-            data['away scoreboard'][league] = away_table.to_json(date_format='iso', orient='split')
+            if league not in data['home scoreboard'].keys():
+                home_table = scrape_home_table(response_text)
+                data['home scoreboard'][league] = home_table.to_json(date_format='iso', orient='split')
 
-        if league not in data['last five games'].keys():
-            last_five_games = scrape_last_five_games(response_text)
-            data['last five games'][league] = last_five_games
+            if league not in data['away scoreboard'].keys():
+                away_table = scrape_away_table(response_text)
+                data['away scoreboard'][league] = away_table.to_json(date_format='iso', orient='split')
 
-        return data
+            if league not in data['last five games'].keys():
+                last_five_games = scrape_last_five_games(response_text)
+                data['last five games'][league] = last_five_games
+
+            return data
+        
+        return no_update
     
     else:
         return no_update
